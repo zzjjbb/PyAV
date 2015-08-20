@@ -11,7 +11,12 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
+import json
+
+from docutils import nodes
+from sphinx import addnodes
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -196,6 +201,81 @@ autodoc_default_flags = ['undoc-members', 'show-inheritance']
 doxylink = {}
 ffmpeg_tagfile = os.path.abspath(os.path.join(__file__, '..', '..', 'tmp', 'tagfile.xml'))
 if os.path.exists(ffmpeg_tagfile):
-    doxylink['ffmpeg'] = (ffmpeg_tagfile, 'https://ffmpeg.org/doxygen/trunk/')
+    pass 
+    #doxylink['ffmpeg'] = (ffmpeg_tagfile, 'https://ffmpeg.org/doxygen/trunk/')
 else:
     print "WARNING: Please build FFmpeg's docs with: GENERATE_TAGFILE = %s" % ffmpeg_tagfile
+
+
+def process_library_uses(app, doctree):
+
+
+    env = app.builder.env
+    if not hasattr(env, '_pyav_library_uses'):
+        uses = env._pyav_library_uses = {}
+        path = '_build/library_uses.json'
+        raw = json.load(open(path)) if os.path.exists(path) else []
+        for use in raw:
+            our_name = '.'.join(filter(None, [use.get(k) for k in ('module', 'class', 'function', 'property')]))
+            uses.setdefault(our_name, []).append(use['name'])
+    else:
+        uses = env._pyav_library_uses
+
+
+
+    def has_tag(modname, fullname, docname, refname):
+        entry = env._viewcode_modules.get(modname, None)
+        try:
+            analyzer = ModuleAnalyzer.for_module(modname)
+        except Exception:
+            env._viewcode_modules[modname] = False
+            return
+        if not isinstance(analyzer.code, text_type):
+            code = analyzer.code.decode(analyzer.encoding)
+        else:
+            code = analyzer.code
+        if entry is None or entry[0] != code:
+            analyzer.find_tags()
+            entry = code, analyzer.tags, {}, refname
+            env._viewcode_modules[modname] = entry
+        elif entry is False:
+            return
+        _, tags, used, _ = entry
+        if fullname in tags:
+            used[fullname] = docname
+            return True
+
+    for objnode in doctree.traverse(addnodes.desc):
+        if objnode.get('domain') != 'py':
+            continue
+        names = set()
+        for signode in objnode:
+            if not isinstance(signode, addnodes.desc_signature):
+                continue
+            modname = signode.get('module')
+            fullname = signode.get('fullname')
+            refname = modname
+
+            absname = modname + '.' + fullname
+            lib_uses = uses.get(absname, ())
+
+            if not lib_uses:
+                continue
+
+            html = addnodes.only(expr='html')
+
+            for use in lib_uses:
+
+                ref = nodes.reference('', '')
+                ref += nodes.emphasis(('here'), ('here'))
+
+                ref['refuri'] = app.builder.get_relative_uri(env.docname, 'includes')
+                ref['refuri'] += '#c.' + use
+
+                html += ref
+
+            signode += html
+
+def setup(app):
+    app.connect('doctree-read', process_library_uses)
+    return {'version': '0.1'}

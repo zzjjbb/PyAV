@@ -52,6 +52,8 @@ tmp/ffmpeg-git:
 tmp/Doxyfile: tmp/ffmpeg-git
 	cp tmp/ffmpeg-git/doc/Doxyfile $@
 	echo "GENERATE_TAGFILE = ../tagfile.xml" >> $@
+	echo "GENERATE_HTML = NO" >> $@
+	#echo "GENERATE_XML = NO" >> $@
 
 tmp/tagfile.xml: tmp/Doxyfile
 	cd tmp/ffmpeg-git; doxygen ../Doxyfile

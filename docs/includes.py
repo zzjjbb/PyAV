@@ -143,6 +143,7 @@ if not doxygen:
 
 print('Parsing Cython source for references...', file=sys.stderr)
 lib_references = {}
+lib_uses = []
 for path in iter_cython('av'):
     try:
         events = extract(path)
@@ -152,6 +153,10 @@ for path in iter_cython('av'):
     for event in events:
         if event['type'] == 'library use':
             lib_references.setdefault(event['name'], []).append(event)
+            ctx = dict((k, event.get(k)) for k in ('name', 'module', 'class', 'function', 'property') if event.get(k))
+            lib_uses.append(ctx)
+
+json.dump(lib_uses, open('docs/_build/library_uses.json', 'w'), indent=4)
 
 
 
@@ -275,6 +280,10 @@ for extern, events in sorted(defs_by_extern.iteritems()):
             print('-' * (len(extern) + 4))
             print()
             did_header = True
+
+        # Typeless reference.
+        print('.. _lib_%s:' % event['name'])
+        print()
 
         print(headline)
         print()
