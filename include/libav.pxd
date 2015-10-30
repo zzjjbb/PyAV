@@ -17,6 +17,8 @@ include "libavformat/avformat.pxd"
 include "libswresample/swresample.pxd"
 include "libswscale/swscale.pxd"
 
+include "opengl.pxd"
+
 
 cdef extern from "stdio.h" nogil:
 

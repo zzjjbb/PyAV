@@ -4,6 +4,8 @@ import os
 import sys
 import pprint
 import time
+import threading
+from Queue import Queue
 
 from qtproxy import Q
 from glproxy import gl
@@ -12,6 +14,24 @@ import av
 
 WIDTH = 960
 HEIGHT = 540
+
+
+class Shader(object):
+
+    def __init__(self, type_, source):
+        self.name = gl.createShader(getattr(gl, '%s_SHADER' % type_.upper()))
+        gl.shaderSource(self.name, source)
+        gl.compileShader(self.name)
+        if not gl.getObjectParameteri(self.name, gl.COMPILE_STATUS):
+            raise ValueError('did not compile')
+
+class Program(object):
+
+    def __init__(self, vert_source, frag_source):
+        self.vert_shader = Shader('VERTEX', vert_source)
+        self.frag_shader = Shader('FRAGMENT', frag_source)
+
+
 
 
 class PlayerGLWidget(Q.GLWidget):
@@ -70,6 +90,21 @@ image_iter = _iter_images()
 app = Q.Application([])
 
 glwidget = PlayerGLWidget()
+
+
+
+
+# prog = Program(
+#     '''xxx''',
+#     '''yyyy''',
+# )
+
+# exit()
+
+
+
+
+
 glwidget.setFixedWidth(WIDTH)
 glwidget.setFixedHeight(HEIGHT)
 glwidget.show()
@@ -79,22 +114,41 @@ start_time = 0
 count = 0
 
 timer = Q.Timer()
-timer.setInterval(1000/30)
-@timer.timeout.connect
+#timer.setInterval(1000/30)
+#@timer.timeout.connect
+
+queue = Queue(maxsize=10)
+
+def thread_target():
+    for frame in image_iter:
+        queue.put(frame)
+
+thread = threading.Thread(target=thread_target)
+thread.start()
+
 def on_timeout(*args):
 
     global start_time, count
     start_time = start_time or time.time()
 
-    frame = next(image_iter)
+    frame = queue.get()#  next(image_iter)
     ptr = ctypes.c_void_p(frame.planes[0].ptr)
     glwidget.setImage(frame.width, frame.height, ptr)
-    glwidget.updateGL()
+    glwidget.paintGL()
+    glwidget.swapBuffers()
+    #glwidget.updateGL()
 
     count += 1
     elapsed = time.time() - start_time
     print frame.pts, frame.dts, '%.2ffps' % (count / elapsed)
 
-timer.start()
+gl.xSwapIntervalEXT(0)
 
+#timer.start()
+
+def loop_timeout(*args):
+    while True:
+        on_timeout()
+
+timer.singleShot(0, loop_timeout)
 app.exec_()

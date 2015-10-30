@@ -6,6 +6,8 @@ import sys
 import av
 from tests.common import asset, sandboxed
 
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger('libav').setLevel(logging.CRITICAL)
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-v', '--verbose', action='store_true')
