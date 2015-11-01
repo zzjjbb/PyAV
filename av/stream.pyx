@@ -117,6 +117,8 @@ cdef class Stream(object):
 
     property time_base:
         def __get__(self): return avrational_to_faction(&self._stream.time_base)
+        def __set__(self, value):
+            to_avrational(value, &self._stream.time_base)
 
     property rate:
         def __get__(self): 

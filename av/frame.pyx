@@ -3,6 +3,7 @@ from libc.limits cimport INT_MAX
 from cpython cimport Py_INCREF, PyTuple_New, PyTuple_SET_ITEM
 
 from av.plane cimport Plane
+from av.utils cimport to_avrational
 
 
 cdef class Frame(object):
@@ -58,8 +59,7 @@ cdef class Frame(object):
             return self.time_base
 
         def __set__(self, value):
-            self.time_base.num = value.numerator
-            self.time_base.den = value.denominator
+            to_avrational(value, &self.time_base)
 
     cdef _init_planes(self, cls=Plane):
 
