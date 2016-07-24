@@ -37,3 +37,5 @@ cdef class BitmapSubtitlePlane(object):
     cdef readonly int index
     cdef readonly long buffer_size
     cdef void *_buffer
+
+

@@ -24,7 +24,10 @@ if not streams:
     print 'no subtitles'
     exit(1)
 
-print streams
+for stream in streams:
+    print 'stream', stream, stream.dvdctx
+    print '    ', stream.dvdctx.has_palette
+
 
 count = 0
 for pi, packet in enumerate(video.demux([streams[0]])):
@@ -40,8 +43,8 @@ for pi, packet in enumerate(video.demux([streams[0]])):
             if rect.type == 'text':
                 print '\t\ttext: ', rect, rect.text.rstrip('\n')
             if rect.type == 'bitmap':
-                print '\t\tbitmap: ', rect, rect.width, rect.height, rect.pict_buffers
-                buffers = [b for b in rect.pict_buffers if b is not None]
+                print '\t\tbitmap: ', rect, rect.width, rect.height, rect.nb_colors, rect.planes
+                buffers = [b for b in rect.planes if b is not None]
                 if buffers:
                     imgs = [
                         Image.frombuffer('L', (rect.width, rect.height), buffer, "raw", "L", 0, 1)
@@ -54,6 +57,7 @@ for pi, packet in enumerate(video.demux([streams[0]])):
                     else:
                         img = Image.merge('RGBA', imgs)
                     img.save('subtitles/%04d.png' % count)
+                    exit()
     
             count += 1
             if count > 10:

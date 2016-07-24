@@ -170,6 +170,11 @@ cdef class Stream(object):
         def __set__(self, int value):
             self._codec_context.thread_count = value
 
+    property extra_data:
+        def __get__(self):
+            if self._codec_context.extradata_size:
+                return self._codec_context.extradata[:self._codec_context.extradata_size]
+    
     cpdef decode(self, Packet packet, int count=0):
         """Decode a list of :class:`.Frame` from the given :class:`.Packet`.
 

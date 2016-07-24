@@ -146,6 +146,11 @@ cdef extern from "libavcodec/avcodec.pyav.h" nogil:
         int get_buffer(AVCodecContext *ctx, AVFrame *frame)
         void release_buffer(AVCodecContext *ctx, AVFrame *frame)
         
+        unsigned char *extradata
+        int extradata_size
+
+        void *priv_data
+        
         # User Data
         void *opaque
     
@@ -338,6 +343,12 @@ cdef extern from "libavcodec/avcodec.pyav.h" nogil:
     )
     
     cdef void avsubtitle_free(AVSubtitle*)
+    
+    cdef struct DVDSubContext:
+        uint32_t palette[16]
+        int has_palette
+        uint8_t colormap[4];
+        uint8_t alpha[256];
     
     cdef void avcodec_get_frame_defaults(AVFrame* frame)
     

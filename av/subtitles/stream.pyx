@@ -19,3 +19,17 @@ cdef class SubtitleStream(Stream):
         
         return SubtitleSet(proxy)
 
+
+    property dvdctx:
+        def __get__(self):
+            cdef DVDSubtitleContext ctx = DVDSubtitleContext()
+            ctx.ptr = <lib.DVDSubContext*> self._codec_context.priv_data
+            return ctx
+
+cdef class DVDSubtitleContext(object):
+
+    property has_palette:
+        def __get__(self):
+            return self.ptr.has_palette
+            
+    
