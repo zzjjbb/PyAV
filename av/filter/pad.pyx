@@ -1,4 +1,4 @@
-from av.utils cimport media_type_to_string
+from av.codec.codec cimport _MediaType
 from av.filter.link cimport wrap_filter_link
 
 
@@ -30,7 +30,7 @@ cdef class FilterPad(object):
 
     property type:
         def __get__(self):
-            return media_type_to_string(lib.avfilter_pad_get_type(self.base_ptr, self.index))
+            return _MediaType._get(lib.avfilter_pad_get_type(self.base_ptr, self.index), create=True)
 
 
 cdef class FilterContextPad(FilterPad):

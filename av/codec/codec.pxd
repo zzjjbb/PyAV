@@ -2,6 +2,11 @@ from libc.stdint cimport uint64_t
 
 cimport libav as lib
 
+from av.enums cimport EnumType
+
+
+cdef EnumType _MediaType
+
 
 cdef class Codec(object):
 

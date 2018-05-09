@@ -4,8 +4,9 @@ from warnings import warn
 
 from av.audio.format cimport get_audio_format
 from av.descriptor cimport wrap_avclass
-from av.utils cimport flag_in_bitfield, media_type_to_string
+from av.utils cimport flag_in_bitfield
 from av.video.format cimport get_video_format
+from av.enums cimport define_enum
 
 cdef object _cinit_sentinel = object()
 
@@ -23,6 +24,16 @@ class UnknownCodecError(ValueError):
     pass
 
 
+cdef EnumType _MediaType = define_enum('MediaType', (
+    ('video', lib.AVMEDIA_TYPE_VIDEO),
+    ('audio', lib.AVMEDIA_TYPE_AUDIO),
+    ('data', lib.AVMEDIA_TYPE_DATA),
+    ('subtitle', lib.AVMEDIA_TYPE_SUBTITLE),
+    ('attachment', lib.AVMEDIA_TYPE_ATTACHMENT),
+))
+MediaType = _MediaType
+
+
 cdef class Codec(object):
 
     """A single encoding or decoding codec.
@@ -36,7 +47,7 @@ cdef class Codec(object):
         >>> codec.name
         'mpeg4'
         >>> codec.type
-        'video'
+        <MediaType:video(0)>
         >>> codec.is_encoder
         False
 
@@ -87,7 +98,7 @@ cdef class Codec(object):
     property long_name:
         def __get__(self): return self.ptr.long_name or ''
     property type:
-        def __get__(self): return media_type_to_string(self.ptr.type)
+        def __get__(self): return _MediaType._get(self.ptr.type, create=True)
     property id:
         def __get__(self): return self.ptr.id
 
