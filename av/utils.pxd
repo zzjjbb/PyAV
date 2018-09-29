@@ -3,9 +3,11 @@ from libc.stdint cimport int64_t, uint8_t, uint64_t
 cimport libav as lib
 
 
+cdef object cinit_sentinel
+
 cdef int stash_exception(exc_info=*)
 
-cpdef int err_check(int res=*, filename=*) except -1
+cpdef int err_check(int res=*, str filename=*) except -1
 
 
 
