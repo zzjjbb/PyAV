@@ -5,7 +5,7 @@ BUILDDIR      = _build
 
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(SPHINXOPTS) .
 
-.PHONY: clean html open upload
+.PHONY: clean html open upload render_examples
 .DEFAULT: html
 
 includes.rst: includes.py $(shell find ../include ../av -name '*.pyx' -or -name '*.pxd')
@@ -16,11 +16,20 @@ error_table.rst: error_table.py ../av/error.pyx
 	python $< > $@.tmp
 	mv $@.tmp $@
 
+EXAMPLES_PY := $(shell find ../examples -name '*.py')
+EXAMPLES_RST := $(EXAMPLES_PY:../examples/%.py=examples/%.rst)
+
+examples/%.rst : ../examples/%.py render-example.py
+	mkdir -p $(@D)
+	python render-example.py < $< > $@
+
+render_examples: $(EXAMPLES_RST)
+
 clean:
 	- rm -rf $(BUILDDIR)/*
 	- rm includes.rst
 
-html: includes.rst error_table.rst
+html: includes.rst error_table.rst render_examples
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 
 test:

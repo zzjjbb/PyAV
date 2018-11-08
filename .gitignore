@@ -27,6 +27,7 @@
 /docs/_build
 /docs/error_table.rst
 /docs/includes.rst
+/docs/examples
 /ipch
 /msvc-projects
 /src
