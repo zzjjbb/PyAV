@@ -9,6 +9,7 @@ jobs:
 
     name: "${{ matrix.config.suite }}"
     runs-on: ubuntu-latest
+    if: "! contains(github.events.commits[0], '[noci]')"
 
     strategy:
       matrix:
@@ -52,6 +53,8 @@ jobs:
     name: "py-${{ matrix.config.python }} lib-${{ matrix.config.ffmpeg }} ${{matrix.config.os}}"
 
     runs-on: ${{ matrix.config.os }}
+
+    if: "! contains(github.events.commits[0], '[noci]')"
 
     strategy:
       matrix:
@@ -117,6 +120,8 @@ jobs:
     name: "py-${{ matrix.config.python }} lib-${{ matrix.config.ffmpeg }} ${{matrix.config.os}}"
 
     runs-on: ${{ matrix.config.os }}
+
+    if: "! contains(github.events.commits[0], '[noci]')"
 
     strategy:
       matrix:
