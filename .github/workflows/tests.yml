@@ -91,6 +91,13 @@ jobs:
             brew update
             brew install automake libtool nasm pkg-config shtool texi2html wget
             brew install libass libjpeg libpng libvorbis libvpx opus theora x264
+
+            # For pip to be able to use ssl.
+            brew uninstall --ignore-dependencies openssl
+            brew install openssl
+            brew link --force openssl
+            python -m pip install --upgrade pip || exit 1
+
             ;;
         esac
 
