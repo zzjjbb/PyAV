@@ -162,3 +162,31 @@ cdef class VideoCodecContext(CodecContext):
     property coded_height:
         def __get__(self):
             return self.ptr.coded_height
+	
+    property color_primaries:
+        def __get__(self):
+            return self.ptr.color_primaries
+
+        def __set__(self, int value):
+            self.ptr.color_primaries = <lib.AVColorPrimaries>value
+
+    property color_trc:
+        def __get__(self):
+            return self.ptr.color_trc
+
+        def __set__(self, int value):
+            self.ptr.color_trc = <lib.AVColorTransferCharacteristic>value
+
+    property colorspace:
+        def __get__(self):
+            return self.ptr.colorspace
+
+        def __set__(self, int value):
+            self.ptr.colorspace = <lib.AVColorSpace>value
+
+    property color_range:
+        def __get__(self):
+            return self.ptr.color_range
+
+        def __set__(self, int value):
+            self.ptr.color_range = <lib.AVColorRange>value

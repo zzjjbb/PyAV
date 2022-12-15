@@ -216,6 +216,10 @@ cdef extern from "libavcodec/avcodec.h" nogil:
         int gop_size # The number of pictures in a group of pictures, or 0 for intra_only.
         int max_b_frames
         int has_b_frames
+        AVColorPrimaries color_primaries
+        AVColorTransferCharacteristic color_trc
+        AVColorSpace colorspace
+        AVColorRange color_range
 
         # Audio.
         AVSampleFormat sample_fmt
